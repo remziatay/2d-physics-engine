@@ -1,0 +1,56 @@
+{
+  "name": "2d-physics-engine",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://remziatay.github.io/2d-physics-engine",
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
+    "react-scripts": "latest"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "standard",
+      "react-app",
+      "plugin:import/errors",
+      "plugin:react/recommended",
+      "plugin:jsx-a11y/recommended"
+    ],
+    "plugins": [
+      "import",
+      "react",
+      "jsx-a11y"
+    ],
+    "rules": {
+      "react/prop-types": 0,
+      "react/no-unescaped-entities": 0
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "eslint-config-standard": "latest",
+    "eslint-plugin-node": "latest",
+    "eslint-plugin-promise": "latest",
+    "eslint-plugin-standard": "latest",
+    "gh-pages": "latest"
+  }
+}
