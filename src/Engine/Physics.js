@@ -11,7 +11,6 @@ export default class Physics {
     this.ctx = canvas.getContext('2d')
     this.width = canvas.width
     this.height = canvas.height
-    // this.addShapes(this.colls);
   }
 
   static get gravity () {
@@ -23,13 +22,10 @@ export default class Physics {
       this.shapes.push(shape)
     })
     this.shapeCount += shapes.length
-    // this.shapes.push(...shapes);
   }
 
   setGravity (g) {
     if (g - this.g) this.shapes.forEach((shape) => (shape.a.y += g - this.g))
-
-    // this.shapes.forEach((shape) => (shape.ay += g - this.g));
     this.g = g
   }
 
@@ -73,21 +69,13 @@ export default class Physics {
 
     let { polygon, other, position, normal, tangent } = contact
     const relativeVelocity = polygon.getVelocityAtPoint(position).sub(other.getVelocityAtPoint(position))
-    // Utils.drawVector(relativeVelocity, position);
-    // console.log(relativeVelocity);
+
     const contactVelocity = relativeVelocity.dot(normal)
     if (relativeVelocity.dot(normal) < 0) {
       // console.log('seperating');
       return
     }
-    /* if (polygon.getVelocityAtPoint(avgPos).sub(other.getVelocityAtPoint(avgPos)).dot(normal) < 0) {
-        console.log('seperating');
-        continue;
-      } */
-    // world.engine.stop();
 
-    // Do not resolve if velocities are separating
-    // if (contactVelocity < 0) return;
     const e = 0.2
     const r1 = position.sub(polygon.center)
     const r2 = position.sub(other.center)
@@ -104,20 +92,7 @@ export default class Physics {
     // console.log("mag:",impulseMagnitude);
     const impulse = normal.multiply(impulseMagnitude)
 
-    // console.log({...gon5.v,w:gon5.w});
-
-    // console.log({...gon5.v,w:gon5.w});
-    // Utils.drawVector(normal.multiply(impulseMagnitude), position);
-    // impulse.add(normal.multiply(impulseMagnitude*0.5), true);
-    // pos.add(position.multiply(0.5), true);
-    // console.log("prev-i",impulse);
-    // console.log("prev-p",pos);
-    // world.engine.stop();
-    // return;
-    // console.log({ ...other.v, w: other.w });
-
     // todo: change to average
-
     const staticFriction = Math.sqrt(polygon.staticFriction ** 2 + other.staticFriction ** 2)
     const dynamicFriction = Math.sqrt(polygon.dinamicFriction ** 2 + other.dinamicFriction ** 2)
     // relativeVelocity = polygon.getVelocityAtPoint(position).sub(other.getVelocityAtPoint(position));
@@ -134,109 +109,23 @@ export default class Physics {
 
     let frictionImpulse //= tangent.multiply(-tangentMagnitude * 0.8);
     window.t = tangentMagnitude
-    let mod = ''
-    // console.log(tangentMagnitude);
-    // if (relativeVelocity.dot(tangent) < 0.1 && relativeVelocity.dot(tangent) > -0.1) {
-    // console.log('too low');
-    // frictionImpulse = Vector.ZERO;
-    // } else {
-    if (Math.abs(tangentMagnitude) < Math.abs(impulseMagnitude)) {
-      // console.log('static');
-      mod = 'static'
-      frictionImpulse = tangent.multiply(tangentMagnitude)
-    } else {
-      // console.log('dynamic');
-      mod = 'dynamic'
-      frictionImpulse = tangent.multiply(impulseMagnitude)
-    }
-    // }
 
-    // console.log(other.getVelocityAtPoint(position));
-    // console.table({ impulse, frictionImpulse });
-    // world.engine.stop();
-    // polygon.applyForce(frictionImpulse.negative(), position);
-    // other.applyForce(frictionImpulse, position);
-    // world.engine.stop();
-    // console.log(impulse.multiply(gon5.invMass),frictionImpulse.multiply(gon5.invMass));
-    // console.log(gon5.v.x);
+    if (Math.abs(relativeVelocity.dot(tangent)) < 0.0001) {
+      console.log('too low')
+      frictionImpulse = Vector.ZERO
+    } else {
+      if (Math.abs(tangentMagnitude) < Math.abs(impulseMagnitude)) {
+        frictionImpulse = tangent.multiply(tangentMagnitude)
+      } else {
+        frictionImpulse = tangent.multiply(impulseMagnitude)
+      }
+    }
+
     polygon.applyImpulse(impulse, position)
     other.applyImpulse(impulse.negative(), position)
-    // const test = gon5.v.x;
-    // console.log("after impulse",gon5.v.x);
-    if (mod === 'static' && Math.abs(tangentMagnitude) < 1) console.log(tangentMagnitude)
+
     polygon.applyImpulse(frictionImpulse, position)
     other.applyImpulse(frictionImpulse.negative(), position)
-    // console.log("after friction",gon5.v.x);
-    /* if(Math.abs(gon5.v.x) > Math.abs(test) && mod === "static"){
-      console.log(gon5.v.x,test)
-    } */
-
-    // console.log("after friction",{...gon5.v,w:gon5.w});
-    // console.log(other.getVelocityAtPoint(position));
-
-    /*
-    let tangent = relativeVelocity.sub(normal.multiply(contactVelocity)).normalize();
-
-    if (Math.abs(tangent.sqrLength - t.sqrLength) > 0.000000000001) {
-      console.table({ tangent, t });
-      world.engine.stop();
-    }
-
-    tangent = t;
-
-    const tangentMagnitude =
-      -relativeVelocity.dot(tangent) /
-      (polygon.invMass +
-        other.invMass +
-        polygon.invInertia * r1.cross(normal) ** 2 +
-        other.invInertia * r2.cross(normal) ** 2);
-    //world.engine.stop();
-    //console.log(tangentMagnitude);
-    // Don't apply tiny friction impulses
-    if (tangentMagnitude < 0.0001 && tangentMagnitude > -0.0001) {
-      console.log('sa', tangentMagnitude);
-      return;
-    }
-
-    // Coulumb's law
-    let tangentImpulse;
-    if (Math.abs(tangentMagnitude) < impulseMagnitude * staticFriction){
-      console.log("static")
-      tangentImpulse = tangent.multiply(tangentMagnitude);
-    }
-    else {
-      console.log("dynamic")
-      tangentImpulse = tangent.multiply(-impulseMagnitude * dynamicFriction);
-    }
-
-    // Apply friction impulse
-    //console.log(tangentImpulse);
-    polygon.applyImpulse(tangentImpulse.negative(), position);
-    other.applyImpulse(tangentImpulse, position);
-
-    //}
-
-    /*
-    if (impulse.x || impulse.y) {
-      console.table({impulse, avgPos});
-      console.log(gon5.v);
-      contacts[0].polygon.applyImpulse(impulse, avgPos);
-      contacts[0].other.applyImpulse(impulse.negative(), avgPos);
-      console.log(gon5.v);
-
-      world.engine.stop();
-    } */
-
-    // console.log(impulse);
-    // console.log({ ...other.v, w: other.w });
-    /*
-    this.physics.shapes.forEach((shape) => {
-      shape.update(timestep);
-      shape.draw(this.physics.ctx);
-    });
-
-    this.stop();
-    return; */
   }
 
   positionalCorrection (contacts) {
@@ -282,7 +171,6 @@ export default class Physics {
     const det = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
     if (!det) return null
 
-    // console.log(parseInt((y2-y1)/(x2-x1) - (y4-y3)/(x4-x3)));
     const point = {}
     const tolerance = 0.000001
     point.x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / det

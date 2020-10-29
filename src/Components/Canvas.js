@@ -9,8 +9,8 @@ class Canvas extends React.Component {
   componentDidMount () {
     const canvas = this.canvasRef.current
     function resizeCanvas () {
-      canvas.width = window.innerWidth - 6
-      canvas.height = window.innerHeight - 6
+      canvas.width = canvas.clientWidth
+      canvas.height = canvas.clientHeight
     }
     window.addEventListener('resize', resizeCanvas, false)
     resizeCanvas()
@@ -106,7 +106,7 @@ class Canvas extends React.Component {
     // gon5.draw(cx);
     // console.table(gon5.vertices);
 
-    world.addShapes(/* re, m2, m, re3, re4,   poly, poly2, poly3, poly4 */ tri1, tri2, ground, gon5, gon6)
+    world.addShapes(/* re, m2, m, re3, re4,   poly, poly2, poly3, poly4 */ tri1, tri2, ground, gon5 /* gon6 */)
 
     // todo: add right click menu
     canvas.addEventListener('contextmenu', (e) => {

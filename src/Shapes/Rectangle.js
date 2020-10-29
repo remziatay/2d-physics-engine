@@ -20,7 +20,5 @@ export default class Rectangle extends Shape {
     // ctx.stroke();
     ctx.fillStyle = color
     ctx.fill()
-    // ctx.fillStyle = this.color;
-    // ctx.fillRect(x, y, w, h); // create rectangle
   }
 }

@@ -170,6 +170,5 @@ export default class Polygon {
     const r = point.sub(this.center)
     this.v.add(impulse.multiply(this.invMass), true)
     this.w += r.cross(impulse) * this.invInertia
-    // console.log(this.w)
   }
 }

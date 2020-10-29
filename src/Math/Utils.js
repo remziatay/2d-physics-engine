@@ -8,6 +8,7 @@ export default class Utils {
   }
 
   static drawVector (cx, vector, position) {
+    // TODO remove this, debug purpose
     cx.globalCompositeOperation = 'source-over'
     cx.beginPath()
     cx.lineWidth = 2

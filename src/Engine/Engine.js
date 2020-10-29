@@ -17,13 +17,9 @@ export default class Engine {
     if (this.on) this.on = false
   }
 
-  engine = (newtime) => {
-    // fps print
+  engine = () => {
     if (!this.on) return
     requestAnimationFrame(this.engine)
-    // let elapsed = newtime - this.then;
-    // this.then = newtime;
-    // document.getElementById('fps').innerText = Math.round(1000 / elapsed);
 
     const timestep = 0.06 // 60FPS
 
