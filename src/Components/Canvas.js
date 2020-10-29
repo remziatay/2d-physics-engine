@@ -16,6 +16,7 @@ class Canvas extends React.Component {
     resizeCanvas()
 
     const world = new World(document.getElementById('game'), 10)
+    this.props.setWorld(world)
 
     // for (let i = 0; i < 15; i++) {
     // world.addShapes(new Circle(700 * Math.random(), 150 * Math.random(), 65 * Math.random() + 15));
