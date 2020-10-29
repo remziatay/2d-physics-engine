@@ -111,7 +111,7 @@ export default class Physics {
     window.t = tangentMagnitude
 
     if (Math.abs(relativeVelocity.dot(tangent)) < 0.0001) {
-      console.log('too low')
+      // console.log('too low')
       frictionImpulse = Vector.ZERO
     } else {
       if (Math.abs(tangentMagnitude) < Math.abs(impulseMagnitude)) {

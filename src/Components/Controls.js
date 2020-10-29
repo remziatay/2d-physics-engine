@@ -1,8 +1,10 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik'
-import React, { useCallback, useEffect, useState } from 'react'
+import rafSchd from 'raf-schd'
+import React, { useEffect, useRef, useState } from 'react'
 import { boolean, number, object } from 'yup'
 import Vector from '../Math/Vector'
 import Polygon from '../Shapes/Polygon'
+import TargetIcon from './TargetIcon'
 
 const memo = { lastArgs: {}, ret: {} }
 const getMassInertia = (vCount, size = 1) => {
@@ -41,19 +43,23 @@ const ErrorDiv = ({ children }) => <div style={{
 }}>{children}</div>
 
 const Controls = ({ world }) => {
-  const [pos, setPos] = useState({ x: 0, y: 0 })
   const [dragging, setDragging] = useState(false)
+  const dragRef = useRef(null)
 
   useEffect(() => {
     if (!dragging) return
     let poss = {}
-    const move = e => {
-      setPos({ x: e.pageX, y: e.pageY })
+    const move = rafSchd(e => {
+      // setPos({ x: e.pageX, y: e.pageY })
       poss = { x: e.pageX, y: e.pageY }
-    }
+      dragRef.current.style.left = poss.x + 'px'
+      dragRef.current.style.top = poss.y + 'px'
+    })
     const drop = () => {
       dragging(poss.x, poss.y)
-      setPos({ x: 0, y: 0 })
+      move.cancel()
+      dragRef.current.style.left = 0
+      dragRef.current.style.top = 0
       setDragging(false)
     }
     window.addEventListener('mousemove', move)
@@ -65,6 +71,7 @@ const Controls = ({ world }) => {
   }, [dragging])
 
   return (
+    <>
     <Formik
       initialValues={{
         'v-count': 6,
@@ -73,6 +80,7 @@ const Controls = ({ world }) => {
         mass: getMassInertia(6, 50).mass,
         inertia: getMassInertia(6, 50).inertia,
         kinetic: true,
+        gravity: true,
         vx: 0,
         vy: 0,
         vw: 0,
@@ -84,21 +92,28 @@ const Controls = ({ world }) => {
       }}
       initialTouched={{ 'v-count': true, 'v-size': true, mass: true, inertia: true }}
       validationSchema={object({
-        'v-count': number().moreThan(2).lessThan(20).integer().required(),
-        'v-size': number().moreThan(0).lessThan(150).integer().required(),
-        angle: number().moreThan(-361).lessThan(361).required(),
-        mass: number().moreThan(0).required(),
-        inertia: number().moreThan(0).required(),
+        'v-count': number().moreThan(2).lessThan(20).integer().required().label('Vertex count'),
+        'v-size': number().moreThan(0).lessThan(150).integer().required().label('Vertex size'),
+        angle: number().moreThan(-361).lessThan(361).required().label('Angle'),
+        mass: number().transform((v, ov) => ov === 'Infinity' ? Infinity : v).positive().required().label('Mass'),
+        inertia: number().transform((v, ov) => ov === 'Infinity' ? Infinity : v).positive().required().label('Inertia'),
         kinetic: boolean().required(),
-        px: number().required(),
-        py: number().required()
+        gravity: boolean().required(),
+        vx: number().default(0).transform((v, ov) => ov === '-' ? 0 : v).required().label('Velocity X'),
+        vy: number().default(0).transform((v, ov) => ov === '-' ? 0 : v).required().label('Velocity Y'),
+        vw: number().default(0).transform((v, ov) => ov === '-' ? 0 : v).required().label('Radial velocity'),
+        ax: number().default(0).transform((v, ov) => ov === '-' ? 0 : v).required().label('Acceleration X'),
+        ay: number().default(0).transform((v, ov) => ov === '-' ? 0 : v).required().label('Acceleration Y'),
+        aw: number().default(0).transform((v, ov) => ov === '-' ? 0 : v).required().label('Radial acceleration'),
+        px: number().required().label('Center X'),
+        py: number().required().label('Center Y')
       })}
       onSubmit={(values) => {
-        const { 'v-count': vCount, 'v-size': size, angle, mass, inertia, kinetic } = values
+        const { 'v-count': vCount, 'v-size': size, angle, mass, inertia, kinetic, gravity } = values
         const center = { x: values.px, y: values.py }
         const v = { x: parseFloat(values.vx) || 0, y: parseFloat(values.vy) || 0, r: parseFloat(values.vw) || 0 }
         const a = { x: parseFloat(values.ax) || 0, y: parseFloat(values.ay) || 0, r: parseFloat(values.aw) || 0 }
-        const pol = new Polygon({ vCount, size, angle, mass, inertia, kinetic, center, v, a })
+        const pol = new Polygon({ vCount, size, angle, mass, inertia, kinetic, gravity, center, v, a })
         world.addShapes(pol)
       }}
     >
@@ -132,13 +147,16 @@ const Controls = ({ world }) => {
           <Field style={{ minWidth: '40px' }} id="angle" name="angle" type='number'/>
           <ErrorMessage name="angle" component={ErrorDiv}/>
           <label htmlFor="mass">Mass:</label>
-          <Field style={{ minWidth: '40px' }} id="mass" name="mass" type='number'/>
+          <Field style={{ minWidth: '40px' }} id="mass" name="mass"/>
           <ErrorMessage name="mass" component={ErrorDiv}/>
           <label htmlFor="inertia">Inertia:</label>
-          <Field style={{ minWidth: '40px' }} id="inertia" name="inertia" type='number' />
+          <Field style={{ minWidth: '40px' }} id="inertia" name="inertia" />
           <ErrorMessage name="inertia" component={ErrorDiv}/>
         </div>
-        <label htmlFor="kinetic"><Field id="kinetic" name="kinetic" type="checkbox"/> Kinetic</label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+          <label htmlFor="kinetic"><Field id="kinetic" name="kinetic" type="checkbox"/> Kinetic</label>
+          <label htmlFor="gravity"><Field id="gravity" name="gravity" type="checkbox"/> Gravity applies</label>
+        </div>
         {formik.values.kinetic &&
         <>
           <legend style={{ fontSize: '.8em', fontWeight: 'bold', margin: '1em 0 0 0' }}>Initial Speed</legend>
@@ -146,18 +164,24 @@ const Controls = ({ world }) => {
             <label htmlFor="vx">X: </label>
             <label htmlFor="vy">Y: </label>
             <label htmlFor="vw">W: </label>
-            <input style={{ minWidth: '20px' }} id="vx" name="vx" type='number' {...formik.getFieldProps('vx')} value={formik.values.vx || '0'}/>
-            <input style={{ minWidth: '20px' }} id="vy" name="vy" type='number' {...formik.getFieldProps('vy')} value={formik.values.vy || '0'}/>
-            <input style={{ minWidth: '20px' }} id="vw" name="vw" type='number' {...formik.getFieldProps('vw')} value={formik.values.vw || '0'}/>
+            <Field style={{ minWidth: '20px' }} id="vx" name="vx" />
+            <Field style={{ minWidth: '20px' }} id="vy" name="vy" />
+            <Field style={{ minWidth: '20px' }} id="vw" name="vw" />
+            <ErrorMessage name="vx" component={ErrorDiv}/>
+            <ErrorMessage name="vy" component={ErrorDiv}/>
+            <ErrorMessage name="vw" component={ErrorDiv}/>
           </div>
           <legend style={{ fontSize: '.8em', fontWeight: 'bold', margin: '1em 0 0 0' }}>Initial Acceleration</legend>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', marginTop: 0, gap: '.2em' }}>
             <label htmlFor="ax">X: </label>
             <label htmlFor="ay">Y: </label>
             <label htmlFor="aw">W: </label>
-            <input style={{ minWidth: '20px' }} id="ax" name="ax" type='number' {...formik.getFieldProps('ax')} value={formik.values.ax || '0'}/>
-            <input style={{ minWidth: '20px' }} id="ay" name="ay" type='number' {...formik.getFieldProps('ay')} value={formik.values.ay || '0'}/>
-            <input style={{ minWidth: '20px' }} id="aw" name="aw" type='number' {...formik.getFieldProps('aw')} value={formik.values.aw || '0'}/>
+            <Field style={{ minWidth: '20px' }} id="ax" name="ax" />
+            <Field style={{ minWidth: '20px' }} id="ay" name="ay" />
+            <Field style={{ minWidth: '20px' }} id="aw" name="aw" />
+            <ErrorMessage name="ax" component={ErrorDiv}/>
+            <ErrorMessage name="ay" component={ErrorDiv}/>
+            <ErrorMessage name="aw" component={ErrorDiv}/>
           </div>
         </>
         }
@@ -167,22 +191,26 @@ const Controls = ({ world }) => {
             <label htmlFor="py">Y: </label>
             <Field style={{ minWidth: '20px' }} id="px" name="px" type='number'/>
             <Field style={{ minWidth: '20px' }} id="py" name="py" type='number'/>
+            <ErrorMessage name="px" component={ErrorDiv}/>
+            <ErrorMessage name="py" component={ErrorDiv}/>
 
-        <button style={{ gridColumn: 3, gridRow: '1 / 3', fontSize: '1.5em', padding: 0 }} onMouseDown={e => {
-          /*  e.buttons === 1 &&  */
+        <button style={{ gridColumn: 3, gridRow: '1 / 3', padding: 0 }} onMouseDown={() => {
           setDragging(() => (x, y) => {
             formik.setFieldValue('px', x)
             formik.setFieldValue('py', y)
           })
-        }} >☺</button>
-        {dragging &&
-          <div style={{ fontSize: '1.5em', position: 'fixed', left: pos.x, top: pos.y, transform: 'translate3D(-50%, -50%, 0)', userSelect: 'none' }}>☺</div>
-        }
+        }} ><TargetIcon width={35} height={35}/></button>
         </div>
         <button type="submit">Add</button>
       </Form>
       }
     </Formik>
+    {dragging &&
+          <div ref={dragRef} style={{ position: 'fixed', left: -500, transform: 'translate3D(-50%, -50%, 0)', userSelect: 'none' }}>
+            <TargetIcon width={60} height={60}/>
+          </div>
+        }
+        </>
   )
 }
 

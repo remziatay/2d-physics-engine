@@ -5,6 +5,7 @@
   "homepage": "https://remziatay.github.io/2d-physics-engine",
   "dependencies": {
     "formik": "^2.2.1",
+    "raf-schd": "^4.0.2",
     "react": "latest",
     "react-dom": "latest",
     "react-scripts": "latest",
