@@ -21,7 +21,7 @@ input:not([type]):focus {
 }
 
 .Button {
-  @apply shadow bg-green-500 rounded;
+  @apply shadow;
 }
 
 .Button:focus {
@@ -29,5 +29,5 @@ input:not([type]):focus {
 }
 
 .Button:hover {
-  @apply outline-none bg-green-400;
+  @apply outline-none;
 }

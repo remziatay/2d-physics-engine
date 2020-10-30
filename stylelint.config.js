@@ -21,6 +21,7 @@ module.exports = {
     'comment-whitespace-inside': null,
     'rule-empty-line-before': null,
     'number-leading-zero': null,
-    'block-opening-brace-space-before': null
+    'block-opening-brace-space-before': null,
+    'no-empty-source': null
   }
 }

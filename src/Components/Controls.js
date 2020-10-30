@@ -39,7 +39,7 @@ const ErrorDiv = ({ children }) => (
   </div>
 )
 
-const Controls = ({ world }) => {
+const Controls = ({ world, reset }) => {
   const [dragging, setDragging] = useState(false)
   const dragRef = useRef(null)
 
@@ -192,14 +192,15 @@ const Controls = ({ world }) => {
             <ErrorMessage name="px" component={ErrorDiv}/>
             <ErrorMessage name="py" component={ErrorDiv}/>
 
-        <button className={styles.Button + ' row-start-1 row-span-2 col-start-3 rounded-sm'} onMouseDown={() => {
+        <button className={styles.Button + ' row-start-1 row-span-2 col-start-3 rounded-sm bg-indigo-500 hover:bg-indigo-400'} onMouseDown={() => {
           setDragging(() => (x, y) => {
             formik.setFieldValue('px', x)
             formik.setFieldValue('py', y)
           })
         }} ><TargetIcon width={35} height={35}/></button>
         </div>
-        <button className={styles.Button + ' py-1 mt-2 font-semibold'} type="submit">Add</button>
+        <button className={styles.Button + ' py-1 mt-2 font-semibold bg-green-500 hover:bg-green-400'} type="submit">Add</button>
+        <button className={styles.Button + ' py-1 mt-2 font-semibold bg-red-500 hover:bg-red-400'} type='button' onClick={reset}>Reset</button>
       </Form>
       }
     </Formik>
