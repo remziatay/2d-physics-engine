@@ -1,0 +1,33 @@
+.Form {
+  @apply flex px-4 py-2 ml-1 flex-col min-w-0 overflow-auto border-2 border-gray-900 shadow-md z-10 gap-1 bg-green-100 rounded-md;
+}
+
+label {
+  @apply text-sm font-semibold;
+}
+
+input[type="number"],
+input:not([type]) {
+  @apply border border-transparent rounded-sm px-1 py-px bg-white shadow-xs;
+}
+
+input[type="number"]:focus,
+input:not([type]):focus {
+  @apply border-0 border-b-2 border-green-600 rounded-none outline-none bg-green-100 shadow-none;
+}
+
+.Legend {
+  @apply text-sm font-bold mt-1;
+}
+
+.Button {
+  @apply shadow bg-green-500 rounded;
+}
+
+.Button:focus {
+  @apply outline-none shadow-outline;
+}
+
+.Button:hover {
+  @apply outline-none bg-green-400;
+}

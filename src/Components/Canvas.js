@@ -61,7 +61,6 @@ class Canvas extends React.Component {
     const tri1 = new Polygon({
       center: new Vector(195, 100),
       mass: Infinity,
-      inertia: 100000,
       v: { r: 80 },
       vCount: 3,
       size: 80,

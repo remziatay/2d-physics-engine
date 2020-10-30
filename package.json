@@ -12,9 +12,9 @@
     "yup": "^0.29.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
@@ -50,10 +50,19 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^5.7.0",
+    "autoprefixer": "^10.0.1",
     "eslint-config-standard": "latest",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-node": "latest",
     "eslint-plugin-promise": "latest",
+    "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-standard": "latest",
-    "gh-pages": "latest"
+    "gh-pages": "latest",
+    "postcss-nested": "^5.0.1",
+    "stylelint": "^13.7.2",
+    "stylelint-config-standard": "^20.0.0",
+    "tailwindcss": "^1.9.6"
   }
 }

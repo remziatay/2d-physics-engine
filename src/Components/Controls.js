@@ -5,6 +5,7 @@ import { boolean, number, object } from 'yup'
 import Vector from '../Math/Vector'
 import Polygon from '../Shapes/Polygon'
 import TargetIcon from './TargetIcon'
+import styles from './Controls.module.css'
 
 const memo = { lastArgs: {}, ret: {} }
 const getMassInertia = (vCount, size = 1) => {
@@ -32,15 +33,11 @@ const getMassInertia = (vCount, size = 1) => {
   return memo.ret
 }
 
-const ErrorDiv = ({ children }) => <div style={{
-  gridColumn: '1 / 3',
-  background: 'red',
-  padding: '4px',
-  textAlign: 'center',
-  borderRadius: '10px',
-  color: 'white',
-  marginBottom: '.5em'
-}}>{children}</div>
+const ErrorDiv = ({ children }) => (
+  <div className='bg-red-600 px-2 py-1 text-justify text-yellow-100 border-gray-900 border rounded mb-2 col-span-full'>
+    {children}
+  </div>
+)
 
 const Controls = ({ world }) => {
   const [dragging, setDragging] = useState(false)
@@ -118,8 +115,9 @@ const Controls = ({ world }) => {
       }}
     >
       {formik =>
-        <Form style={{ border: '3px solid navy', marginRight: '3px', padding: '1em .5em', display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0, overflow: 'auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '.2em' }}>
+        <Form className={styles.Form}>
+        <h2 className='block text-center text-xl py-1 text-green-700 font-semibold border-b-2 border-gray-400 '>Add a polygon</h2>
+        <div className='grid gap-1' style={{ gridTemplateColumns: '1fr 2fr' }}>
           <label htmlFor="v-count">Vertex count:</label>
             <input id="v-count" name="v-count" type='number'
               style={{ minWidth: '40px' }}
@@ -153,14 +151,14 @@ const Controls = ({ world }) => {
           <Field style={{ minWidth: '40px' }} id="inertia" name="inertia" />
           <ErrorMessage name="inertia" component={ErrorDiv}/>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+        <div className='grid grid-cols-2'>
           <label htmlFor="kinetic"><Field id="kinetic" name="kinetic" type="checkbox"/> Kinetic</label>
           <label htmlFor="gravity"><Field id="gravity" name="gravity" type="checkbox"/> Gravity applies</label>
         </div>
         {formik.values.kinetic &&
         <>
-          <legend style={{ fontSize: '.8em', fontWeight: 'bold', margin: '1em 0 0 0' }}>Initial Speed</legend>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', marginTop: 0, paddingTop: 0, gap: '.2em' }}>
+          <legend className={styles.Legend}>Initial Speed</legend>
+          <div className='grid grid-cols-3 gap-1'>
             <label htmlFor="vx">X: </label>
             <label htmlFor="vy">Y: </label>
             <label htmlFor="vw">W: </label>
@@ -171,8 +169,8 @@ const Controls = ({ world }) => {
             <ErrorMessage name="vy" component={ErrorDiv}/>
             <ErrorMessage name="vw" component={ErrorDiv}/>
           </div>
-          <legend style={{ fontSize: '.8em', fontWeight: 'bold', margin: '1em 0 0 0' }}>Initial Acceleration</legend>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', marginTop: 0, gap: '.2em' }}>
+          <legend className={styles.Legend}>Initial Acceleration</legend>
+          <div className='grid grid-cols-3 gap-1'>
             <label htmlFor="ax">X: </label>
             <label htmlFor="ay">Y: </label>
             <label htmlFor="aw">W: </label>
@@ -185,32 +183,32 @@ const Controls = ({ world }) => {
           </div>
         </>
         }
-        <legend style={{ fontSize: '.8em', fontWeight: 'bold', margin: '1em 0 0 0' }}>Position</legend>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', marginTop: 0, gap: '.2em' }}>
+        <legend className={styles.Legend}>Position</legend>
+        <div className='grid grid-cols-3 gap-1'>
             <label htmlFor="px">X: </label>
             <label htmlFor="py">Y: </label>
-            <Field style={{ minWidth: '20px' }} id="px" name="px" type='number'/>
-            <Field style={{ minWidth: '20px' }} id="py" name="py" type='number'/>
+            <Field style={{ minWidth: '20px' }} id="px" name="px" />
+            <Field style={{ minWidth: '20px' }} id="py" name="py" />
             <ErrorMessage name="px" component={ErrorDiv}/>
             <ErrorMessage name="py" component={ErrorDiv}/>
 
-        <button style={{ gridColumn: 3, gridRow: '1 / 3', padding: 0 }} onMouseDown={() => {
+        <button className={styles.Button + ' row-start-1 row-span-2 col-start-3 rounded-sm'} onMouseDown={() => {
           setDragging(() => (x, y) => {
             formik.setFieldValue('px', x)
             formik.setFieldValue('py', y)
           })
         }} ><TargetIcon width={35} height={35}/></button>
         </div>
-        <button type="submit">Add</button>
+        <button className={styles.Button + ' py-1 mt-2 font-semibold'} type="submit">Add</button>
       </Form>
       }
     </Formik>
     {dragging &&
-          <div ref={dragRef} style={{ position: 'fixed', left: -500, transform: 'translate3D(-50%, -50%, 0)', userSelect: 'none' }}>
-            <TargetIcon width={60} height={60}/>
-          </div>
-        }
-        </>
+      <div ref={dragRef} className='z-20 fixed transform -translate-x-1/2 -translate-y-1/2 select-none' style={{ left: -500 }}>
+        <TargetIcon width={60} height={60}/>
+      </div>
+    }
+    </>
   )
 }
 
