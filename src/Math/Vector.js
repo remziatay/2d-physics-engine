@@ -44,11 +44,14 @@ export default class Vector {
   multiply (num, inplace = false) {
     if (!num && num !== 0) return inplace ? this : this.copy()
     if (inplace) {
-      this.x *= num
-      this.y *= num
+      this.x = Number.isFinite(this.x) ? Number.isFinite(num) ? (this.x * num) : num : this.x
+      this.y = Number.isFinite(this.y) ? Number.isFinite(num) ? (this.y * num) : num : this.y
       return this
     }
-    return new Vector(this.x * num, this.y * num)
+    return new Vector(
+      Number.isFinite(this.x) ? Number.isFinite(num) ? (this.x * num) : num : this.x,
+      Number.isFinite(this.y) ? Number.isFinite(num) ? (this.y * num) : num : this.y
+    )
   }
 
   div (num, inplace = false) {

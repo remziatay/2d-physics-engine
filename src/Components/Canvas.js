@@ -55,7 +55,7 @@ const Canvas = ({ setWorld }) => {
       // gravity: false,
     })
 
-    world.addShapes(tri1, tri2, ground, gon5)
+    world.addShapes(tri1, tri2, ground /* gon5 */)
 
     const prevent = e => e.preventDefault()
     canvas.addEventListener('contextmenu', prevent)

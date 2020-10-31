@@ -152,6 +152,7 @@ export default class Polygon {
     dv.x = 0
     dv.y = 0
     this.dw = 0
+    // if ((this.vCount > 4) && this.invMass === 0) console.log(this.v)
   }
 
   getVelocityAtPoint (point) {
@@ -161,12 +162,14 @@ export default class Polygon {
   }
 
   applyForce (force, point) {
+    if (!this.kinetic) return
     const r = point.sub(this.center)
     this.dv.add(force.multiply(this.invMass), true)
     this.dw += r.cross(force) * this.invInertia
   }
 
   applyImpulse (impulse, point) {
+    if (!this.kinetic) return
     const r = point.sub(this.center)
     this.v.add(impulse.multiply(this.invMass), true)
     this.w += r.cross(impulse) * this.invInertia

@@ -1,3 +1,5 @@
+import rafSchd from 'raf-schd'
+
 export default class Engine {
   constructor (physics, clearFunc, on = true) {
     this.fpsSample = []
@@ -9,21 +11,22 @@ export default class Engine {
   start () {
     if (!this.on) {
       this.on = true
-      requestAnimationFrame(this.engine)
+      this.engine()
     }
   }
 
   stop () {
-    if (this.on) this.on = false
+    this.engine.cancel()
+    this.on = false
   }
 
-  engine = () => {
+  engine = rafSchd(() => {
     if (!this.on) return
-    requestAnimationFrame(this.engine)
 
     const timestep = 0.06 // 60FPS
 
     this.clear()
+    this.physics.removeRedundantShapes()
     this.physics.checkCollisions()
     // if (!this.on) return;
 
@@ -31,5 +34,6 @@ export default class Engine {
       if (this.on) shape.update(timestep)
       shape.draw(this.physics.ctx)
     })
-  };
+    this.engine()
+  })
 }

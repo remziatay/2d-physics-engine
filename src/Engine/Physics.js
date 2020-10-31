@@ -24,6 +24,19 @@ export default class Physics {
     this.shapeCount += shapes.length
   }
 
+  removeRedundantShapes () {
+    window.show && console.log(this.shapes?.length, this.shapes, (window.show = false))
+    this.shapes = this.shapes.filter(shape => {
+      const { center, v, gravity } = shape
+      if (center.x < -500 && v.x < 0) return false
+      if (center.x > 2600 && v.x > 0) return false
+      if (center.y < -500 && v.y <= 0 && (!gravity || this.g <= 0)) return false
+      if (center.y > 4500 && v.y >= 0 && (!gravity || this.g >= 0)) return false
+      return true
+    })
+    this.shapeCount = this.shapes.length
+  }
+
   setGravity (g) {
     if (g - this.g) this.shapes.forEach((shape) => (shape.a.y += g - this.g))
     this.g = g
@@ -31,14 +44,12 @@ export default class Physics {
 
   resolveContacts (contacts) {
     if (!contacts || !contacts.length) return
-    // contacts[0].polygon.w = Utils.degToRad(5);
-    window.c = contacts
+
     contacts.sort((c1, c2) => c2.penetration - c1.penetration)
     const contact = contacts[0]
     if (contacts.length > 1 && contacts[0].penetration - contacts[1].penetration < 0.05) {
-      const { polygon, other, position: position1, normal } = contacts[0]
+      const { polygon, other, position: position1 } = contacts[0]
       const { position: position2 } = contacts[1]
-      // console.log("Bingo");
       const relativeVelocity1 = polygon.getVelocityAtPoint(position1).sub(other.getVelocityAtPoint(position1))
       const relativeVelocity2 = polygon.getVelocityAtPoint(position2).sub(other.getVelocityAtPoint(position2))
       const len1 = relativeVelocity1.length
@@ -46,34 +57,14 @@ export default class Physics {
       contact.position = position1.multiply(len1).add(position2.multiply(len2)).div(len1 + len2)
       contact.relativeVelocity = relativeVelocity1.add(relativeVelocity2).multiply(0.5)
     }
-    // console.log(contacts)
-    const avgPos = new Vector(0, 0)
-    const avgRelVel = new Vector(0, 0)
-    for (const contact of contacts) {
-      const { polygon, other, position, normal } = contact
-      // cx.globalCompositeOperation = 'source-over';
-      // new Circle({ ...position, r: 5, color: 'black' }).draw(this.ctx);
-      // cx.globalCompositeOperation = 'destination-over';
-      const relativeVelocity = polygon.getVelocityAtPoint(position).sub(other.getVelocityAtPoint(position))
-      avgRelVel.add(relativeVelocity.multiply(0.5), true)
-      avgPos.add(contact.position.div(contacts.length), true)
-    }
-    // Utils.drawVector(avgRelVel, avgPos);
-
-    // world.engine.stop();
-    // return;
-
-    // const impulse = new Vector(0, 0);
-    // const pos = new Vector(0, 0);
-    // for (const contact of contacts) {
 
     let { polygon, other, position, normal, tangent } = contact
     const relativeVelocity = polygon.getVelocityAtPoint(position).sub(other.getVelocityAtPoint(position))
 
     const contactVelocity = relativeVelocity.dot(normal)
     if (relativeVelocity.dot(normal) < 0) {
-      // console.log('seperating');
-      return
+      // console.log('seperating')
+      return true
     }
 
     const e = 0.2
@@ -87,19 +78,12 @@ export default class Physics {
         polygon.invInertia * r1.cross(normal) ** 2 +
         other.invInertia * r2.cross(normal) ** 2)
 
-    if (impulseMagnitude === Infinity) {
-    }
-    // console.log("mag:",impulseMagnitude);
-    const impulse = normal.multiply(impulseMagnitude)
+    if (!Number.isFinite(impulseMagnitude)) return true
 
-    // todo: change to average
-    const staticFriction = Math.sqrt(polygon.staticFriction ** 2 + other.staticFriction ** 2)
-    const dynamicFriction = Math.sqrt(polygon.dinamicFriction ** 2 + other.dinamicFriction ** 2)
-    // relativeVelocity = polygon.getVelocityAtPoint(position).sub(other.getVelocityAtPoint(position));
+    const impulse = normal.multiply(impulseMagnitude * 1.2)
 
     tangent = relativeVelocity.sub(normal.multiply(relativeVelocity.dot(normal))).normalize()
 
-    // console.log("tangent",tangent)
     const tangentMagnitude =
       -relativeVelocity.dot(tangent) /
       (polygon.invMass +
@@ -107,7 +91,7 @@ export default class Physics {
         polygon.invInertia * r1.cross(tangent) ** 2 +
         other.invInertia * r2.cross(tangent) ** 2)
 
-    let frictionImpulse //= tangent.multiply(-tangentMagnitude * 0.8);
+    let frictionImpulse
     window.t = tangentMagnitude
 
     if (Math.abs(relativeVelocity.dot(tangent)) < 0.0001) {
@@ -153,18 +137,11 @@ export default class Physics {
 
     contacts.forEach((contact) => {
       for (let i = 0; i < 10; i++) {
-        this.resolveContacts(contact)
+        if (this.resolveContacts(contact)) break
       }
 
-      // console.log(contact[0].other.center);
-      // contact[0].polygon.update(0.06);
-      // contact[0].other.update(0.06);
-      // console.log(contact[0].other.center);
       this.positionalCorrection(contact)
-      // console.log(contact[0].other.center);
     })
-
-    // let polygon, other;
   }
 
   lineIntersection ({ x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 }, { x: x4, y: y4 }) {
