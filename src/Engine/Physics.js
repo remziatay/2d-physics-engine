@@ -25,7 +25,7 @@ export default class Physics {
   }
 
   removeRedundantShapes () {
-    window.show && console.log(this.shapes?.length, this.shapes, (window.show = false))
+    // window.show && console.log(this.shapes?.length, this.shapes, (window.show = false))
     this.shapes = this.shapes.filter(shape => {
       const { center, v, gravity } = shape
       if (center.x < -500 && v.x < 0) return false
@@ -80,7 +80,7 @@ export default class Physics {
 
     if (!Number.isFinite(impulseMagnitude)) return true
 
-    const impulse = normal.multiply(impulseMagnitude * 1.2)
+    const impulse = normal.multiply(impulseMagnitude * 1.05)
 
     tangent = relativeVelocity.sub(normal.multiply(relativeVelocity.dot(normal))).normalize()
 
@@ -92,7 +92,6 @@ export default class Physics {
         other.invInertia * r2.cross(tangent) ** 2)
 
     let frictionImpulse
-    window.t = tangentMagnitude
 
     if (Math.abs(relativeVelocity.dot(tangent)) < 0.0001) {
       // console.log('too low')
@@ -175,11 +174,8 @@ export default class Physics {
     // TODO: bir nokta bulunca onu baz alsın dene
     const vertices1 = polygon1.vertices
     const vertices2 = polygon2.vertices
-    const c = 0
     const list = []
-    // console.log(arguments)
     this.colls[0].change({ center: { x: -50 } })
-    // this.colls.forEach((coll) => coll.change({ center: { x: -50 } }));
     for (let i = 0; i < vertices1.length; i++) {
       const p1 = vertices1[i]
       const p2 = vertices1[i + 1] || vertices1[0]
@@ -189,7 +185,6 @@ export default class Physics {
         const s = this.lineIntersection(p1, p2, p3, p4)
         if (s) {
           list.push(s)
-          // this.colls[c++].change({ center: { x: s.x, y: s.y } });
         }
       }
     }
@@ -198,11 +193,8 @@ export default class Physics {
     }
     const avX = list.reduce((acc, val) => acc + val.x, 0) / list.length
     const avY = list.reduce((acc, val) => acc + val.y, 0) / list.length
-    // new Circle({ x: avX, y: avY, r: 4, color: 'black' }).draw(this.ctx);
     polygon1.v.y *= -1
     polygon2.v.y *= -1
-    // this.colls[0].change({ center: { x: avX, y: avY } });
-    // console.log(list.length);
     return { x: avX, y: avY }
   }
 
@@ -210,8 +202,6 @@ export default class Physics {
     const types = {}
     types[shape1.constructor.name] = [shape1]
     types[shape2.constructor.name] = types[shape2.constructor.name] ? [shape1, shape2] : [shape2]
-    // console.log(types);
-    // if (!types.Rectangle) return circleCollision(shape1, shape2)
     if (!types.Circle) return this.polygonCollision(shape1, shape2)
     else return this.rectCircleCollision(...types.Rectangle, ...types.Circle)
   }
@@ -229,8 +219,4 @@ export default class Physics {
     else if (cy > y + h) testY = y + h
     return (cx - testX) ** 2 + (cy - testY) ** 2 <= r ** 2
   }
-
-  /* pointToLineSquareDistance({x,y},{a,b,c}){
-        return ((a*x+b*y+c)**2)/(a**2+b**2);
-    } */
 }
